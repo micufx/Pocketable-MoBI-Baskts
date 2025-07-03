@@ -5,74 +5,65 @@ Run the scripts in the numeric order:
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Accelerometer data analysis
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-A01_ACC_sensor_rev_PRE
-A02_ACC_sensor_rev_POST
+A01_MediaP_events 
+A02_ACC_events
+A03_ACC_sensor_rev_PRE
+A04_ACC_sensor_rev_POST
+A05_ACC_grand_avg_rev
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 EEG preprocessing
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-A03_EEG_preparation
-A04_EEG_preprocessing
-A05_EEG_analysis_RP
+A06_EEG_preparation
+A07_EEG_preprocessing
+A08_EEG_analysis_RP
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Motion analysis 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-A06_Motion_movie
-A07_Motion_plot
-A08_MP_grand_avg
-A09_ACC_grand_avg_rev
-A10_EEG_grand_avg_study_RP
-A11_Motion_movie_grand_avg
-A12_Motion_plot_grand_avg
-A13_Topo_ttest_RP
+A09_Motion_movie
+A10_Motion_plot
+A11_MP_grand_avg
+A12_EEG_grand_avg_study_RP
+A13_Motion_movie_grand_avg
+A14_Motion_plot_grand_avg
+A15_Topo_ttest_RP
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Statistical analysis 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-A14_EEG_features_RP 
-A15_MP_features
-A16_Biserial_RP 
-A17_Biserial_MP
-A18_Variance_across_EEG 
-A19_Variance_across_MP
-A20_Pvalues_across_EEG
-A21_Pvalues_across_MP
+A16_EEG_features_RP 
+A17_MP_features
+A18_Biserial_RP 
+A19_Biserial_MP
+A20_Variance_across_EEG 
+A21_Variance_across_MP
+A22_Pvalues_across_EEG
+A23_Pvalues_across_MP
+A24_Stats_RP
+A25_Data_distribution_RP
+A26_RP_onset_imageplot_participant
+A27_RP_onset_imageplot_grand_avg
+A28_RP_topo_subplot
+A29_Sig_motion
+A30_Basketball_profile
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Optional 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-MediaP_events 
-PLD_visualization (after MediaP_events)    ACC_events
-ACC_subplot_rev (after A02 and A09) 
-RP_topo_subplot (after A05 and A10) 
-Channel inspection (after A03)
-Basketball_profile
-Data_distribution
-Behavioral_Data_Relationship
+B01_MP_visualization
+B02_RP_ttest_subplot_3D
+B03_Channel_inspection
+B04_ACC_subplot_rev
+B05_BIDS_converter_eeg_motion
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Extra 
+Functions attached
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-X_ACC_sensor_sd
-X_ACC_sensor_dev
-X_ACC_subplot_sd
-X_ACC_subplot_dev
-X_ACC_grand_avg_sd
-X_ACC_grand_avg_dev
-X_Biserial_beta
-X_EEG_analysis_beta
-X_EEG_avg_study_beta
-X_EEG_features_Beta (optional: channels)
-X_Hilbert_grand_avg
-X_Hilbert_transform
-X_Mood_analysis
-X_RP_stats_3D
-X_RP_ttest_subplot_3D
-X_Conditions_stats_3D
-X_Conditions_ttest_subplot
-X_Topo_ttest_conditions
-X_Topo_ttest_conditions_avg
-X_EEG_features_RP_avg
-X_Topo_ttest_RP_avg
+save_fig
+save_fig_pro
+subtightplot
+subtightplot_2
+
+
 
