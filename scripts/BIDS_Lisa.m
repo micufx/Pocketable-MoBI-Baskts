@@ -12,12 +12,12 @@ proj_dir = char(java.io.File(proj_dir).getCanonicalPath); % Convert to canonical
 cd(fullfile(proj_dir));
 
 %% Load required paths and libraries
-addpath(fullfile('.', dir('*eeglab*').name)); % eeglab folder
-addpath(fullfile('.', dir('*fieldtrip*').name)); % add Fieldtrip
-addpath(fullfile('.', 'utils')); % add utility functions
-dir_data = fullfile('.','Lisa'); % raw data path
+addpath(fullfile(proj_dir, dir('*eeglab*').name)); % eeglab folder
+addpath(fullfile(proj_dir, dir('*fieldtrip*').name)); % add Fieldtrip
+addpath(fullfile(proj_dir, 'utils')); % add utility functions
+dir_data = fullfile(proj_dir,'data','raw_lisa'); % raw data path
 dir_chanslocs = fullfile(proj_dir, dir('*eeglab*').name, 'plugins', dir('*eeglab*\plugins\*dipfit*').name, '/standard_BEM/elec/standard_1005.elc');
-files = dir(fullfile(dir_data, 'raw\*.set')); % listing datasets
+files = dir(fullfile(dir_data, '*.set')); % listing datasets
 
 ft_defaults; % Fieldtrip defaults
 % some about the version
@@ -31,7 +31,7 @@ cfg.InstitutionName = 'University of Oldenburg';
 cfg.dataset_description.Name = 'EEG_Walking';
 cfg.dataset_description.BIDSVersion = '1.9';
 cfg.method = 'convert'; % The original data is in a BIDS-compliant format and can be copied
-cfg.bidsroot = './Lisa/bids';  % write to the present working directory
+cfg.bidsroot = './data/bids_lisa';  % write to the present working directory
 
 
 conditions = {
