@@ -11,14 +11,14 @@ clc, clear, close all;
 
 %% Loading data
 
-mainpath = 'C:\'; % eeglab folder
-path = 'C:\';
-outpath = 'C:\\';
+mainpath = 'C:\Users\micua\Desktop\eeglab2023.0\'; % eeglab folder
+path = 'C:\Users\micua\OneDrive - Benemérita Universidad Autónoma de Puebla\NCP_Basketball\MediaPipe\';
+outpath = 'C:\\Users\\micua\\OneDrive - Benemérita Universidad Autónoma de Puebla\\Oldenburg_University\\Thesis\\data_hoops\\';
 files = dir( fullfile( path,'\*.xdf')); % listing data sets
 
 num_conditions = 3; % (Conditions and overall: 1=hit 2=miss 3=all)
 
-for sub = 1 : length(files)
+for sub = 1 : 1%length(files)
 
     participant = extractBefore(files(sub).name, '.xdf');
     out_subfold = [outpath, participant, '\\'];
@@ -119,7 +119,7 @@ for sub = 1 : length(files)
     disp(['ACC recording: ', num2str(length_minutes_acc), ' minutes']);
 
 
-    for cond=1 : num_conditions
+    for cond=3 : num_conditions
 
 
         load([out_subfold, 'events_all_', participant,'.mat']); % Loading events file

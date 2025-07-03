@@ -3,9 +3,9 @@ clc, clear, close all;
 %% Movement onset comparison (grand average)
 
 % This code compares the time reference (eye-wrist intersection) and the
-% grand average detected onset of the movement across participants. 
-% Furthermore, a binomial test is used to determine whether the proportion 
-% of participants showing significant movement in each body part was 
+% grand average detected onset of the movement across participants.
+% Furthermore, a binomial test is used to determine whether the proportion
+% of participants showing significant movement in each body part was
 % significantly above chance level.
 
 % Miguel Contreras-Altamirano, 2025
@@ -13,9 +13,9 @@ clc, clear, close all;
 
 %% EEG data preparation
 
-mainpath = 'C:\'; % eeglab folder
-path = 'C:\';  % raw data
-outpath = 'C:\\';
+mainpath = 'C:\Users\micua\Desktop\eeglab2023.0\'; % eeglab folder
+path = 'C:\Users\micua\OneDrive - Benemérita Universidad Autónoma de Puebla\NCP_Basketball\MediaPipe\';  % raw data
+outpath = 'C:\\Users\\micua\\OneDrive - Benemérita Universidad Autónoma de Puebla\\Oldenburg_University\\Thesis\\data_hoops\\';
 files = dir( fullfile( path,'\*.xdf')); % listing data sets
 
 num_conditions = 3; % (Conditions and overall: 1=hit 2=miss 3=all)
@@ -63,7 +63,37 @@ for cond=3 : num_conditions
 
     end
 
-    timeseries_mp = averageTimeseriesMp;
+    %timeseries_mp = averageTimeseriesMp;
+
+
+    frequency_sampling = input('At which frequency would you like the data? (1=15Hz / 2=250Hz): ');
+
+
+    %% Reampling PLD to its originally 15 Hz
+
+    if frequency_sampling == 1
+
+        % Resampling instead
+        %[OUTEEG] = pop_resample( INEEG, freq, fc, df);
+
+        % Define original and target sampling rates
+        original_sampling_rate = EEG.srate;  % EEG sampling rate (e.g., 250Hz)
+        target_sampling_rate = 15;     % Target PLD sampling rate    %sampling_rate_mp
+
+        % Calculate downsampling factor
+        downsample_factor = round(original_sampling_rate / target_sampling_rate);
+
+        % Downsample the time series data
+        averageTimeseriesMp = averageTimeseriesMp(:, 1:downsample_factor:end);
+
+        timeseries_mp = averageTimeseriesMp;
+
+
+    elseif frequency_sampling == 2
+
+        timeseries_mp = averageTimeseriesMp;
+
+    end
 
 
     %% ERP Onset with Gaussian
@@ -162,25 +192,51 @@ for cond=3 : num_conditions
         % Extract x, y, and z rows for the current body part
         x = averageTimeseriesMp((i-1)*3 + 1, :);
         y = averageTimeseriesMp((i-1)*3 + 2, :);
-        %z = averageTimeseriesMp((i-1)*3 + 3, :);   --> Taking out z axis
+        z = averageTimeseriesMp((i-1)*3 + 3, :);  % --> Taking out z axis
 
         % Calculate magnitude
-        acceleration_magnitude(i, :) = sqrt(x.^2 + y.^2);
+        acceleration_magnitude(i, :) = sqrt(x.^2 + y.^2 + z.^2);    %
     end
 
-    % RMS over time for acceleration magnitude
-    sec = 0.01; % Time window length in seconds
-    LeWin = EEG.srate * sec; % Define window length in samples
-    idx_loop = 1:LeWin:size(acceleration_magnitude, 2); % Index for loop to go through windows
-    rms_acceleration_t = zeros(size(acceleration_magnitude, 1), length(idx_loop)); % Pre-allocate matrix
 
-    % Loop through and calculate RMS of acceleration magnitude in each time window
-    row_count = 1; % Initialize counter for rows
-    for idx = 1:LeWin:size(acceleration_magnitude, 2) - LeWin
-        signal = acceleration_magnitude(:, idx:idx + (LeWin - 1)); % Segment of acceleration magnitude
-        rms_acceleration_t(:, row_count) = std(signal, [], 2); % Calculate RMS (standard deviation)
-        row_count = row_count + 1;
+    if frequency_sampling == 1
+
+        % RMS over time for acceleration magnitude
+        sec = 0.264; % Time window length in seconds   (0.264 = 4 samples per window at 15Hz) 
+        LeWin = target_sampling_rate * sec; % Define window length in samples
+        idx_loop = 1:max(1, LeWin):size(acceleration_magnitude, 2); % Ensure valid step size
+        rms_acceleration_t = zeros(size(acceleration_magnitude, 1), length(idx_loop)); % Pre-allocate matrix
+
+        % Loop through and calculate RMS of acceleration magnitude in each time window
+        row_count = 1; % Initialize counter for rows
+        for idx = 1:LeWin:size(acceleration_magnitude, 2) - LeWin
+            signal = acceleration_magnitude(:, idx:idx + (LeWin - 1)); % Segment of acceleration magnitude
+            rms_acceleration_t(:, row_count) = std(signal, [], 2); % Calculate RMS (standard deviation)
+            row_count = row_count + 1;
+        end
+
+
+    elseif frequency_sampling == 2
+
+        % RMS over time for acceleration magnitude
+        sec = 0.01; % Time window length in seconds     (0.01 = 2 samples per window at 250Hz) 
+        LeWin = EEG.srate * sec; % Define window length in samples
+        idx_loop = 1:LeWin:size(acceleration_magnitude, 2); % Index for loop to go through windows
+        rms_acceleration_t = zeros(size(acceleration_magnitude, 1), length(idx_loop)); % Pre-allocate matrix
+
+
+        % Loop through and calculate RMS of acceleration magnitude in each time window
+        row_count = 1; % Initialize counter for rows
+        for idx = 1:LeWin:size(acceleration_magnitude, 2) - LeWin
+            signal = acceleration_magnitude(:, idx:idx + (LeWin - 1)); % Segment of acceleration magnitude
+            rms_acceleration_t(:, row_count) = std(signal, [], 2); % Calculate RMS (standard deviation)
+            row_count = row_count + 1;
+        end
+
+
     end
+
+
 
     % Multiply RMS values by 1000 to convert units if necessary
     rms_acceleration_t = rms_acceleration_t * 1000;
@@ -412,8 +468,21 @@ for cond=3 : num_conditions
 
 
     % Save the Plot
-    saveas(gcf, [outpath, '\\group_analysis\\', 'Permutation_test_motion_clusters', '.jpg']);
+    %saveas(gcf, [outpath, '\\group_analysis\\', 'Permutation_test_motion_clusters', '.jpg']);
     % save_fig(gcf,[outpath, '\\group_analysis\\',], 'Permutation_test_motion_clusters');
+
+
+
+    if frequency_sampling == 1
+
+        saveas(gcf, [outpath, '\\group_analysis\\', 'Permutation_test_motion_clusters_15Hz', '.jpg']);
+
+    elseif frequency_sampling == 2
+
+        saveas(gcf, [outpath, '\\group_analysis\\', 'Permutation_test_motion_clusters_250Hz', '.jpg']);
+
+    end
+
 
 
     %% Combined plots
@@ -471,11 +540,24 @@ for cond=3 : num_conditions
 
 
     % Save the Plot
-    saveas(gcf, [outpath, '\\group_analysis\\','RMS_motion_2D_grand_avg', '.jpg']); % Save the figure as a PNG image
+    %saveas(gcf, [outpath, '\\group_analysis\\','RMS_motion_2D_grand_avg', '.jpg']); % Save the figure as a PNG image
     % save_fig(gcf,[outpath, '\\group_analysis\\',], 'RMS_motion_2D_grand_avg');
 
 
-    %% Combined plots 3D - Permutation 
+
+
+    if frequency_sampling == 1
+
+        saveas(gcf, [outpath, '\\group_analysis\\','RMS_motion_2D_grand_avg_15Hz', '.jpg']); % Save the figure as a PNG image
+
+    elseif frequency_sampling == 2
+
+        saveas(gcf, [outpath, '\\group_analysis\\','RMS_motion_2D_grand_avg_250Hz', '.jpg']); % Save the figure as a PNG image
+
+    end
+
+
+    %% Combined plots 3D - Permutation
 
     % RMS measures overall variability, which is helpful for identifying general movement artifacts.
     time_axis = linspace(from * 1000, to * 1000, length(idx_loop)); % in milliseconds
@@ -637,13 +719,28 @@ for cond=3 : num_conditions
     end
 
     %saveas(gcf, [outpath, '\\group_analysis\\','RMS_motion_3D_grand_avg', '.jpg']); % Save the figure as a PNG image
-    save_fig(gcf,[outpath, '\\group_analysis\\',], 'RMS_motion_3D_grand_avg_Permutation', 'fontsize', 10);
+    %save_fig(gcf,[outpath, '\\group_analysis\\',], 'RMS_motion_3D_grand_avg_Permutation', 'fontsize', 10);
 
     % Save a figure with 2-column width (180 mm) as TIFF
     % save_fig_pro(gcf, [outpath, '\\group_analysis\\',], 'RMS_motion_3D_grand_avg', 'fontsize', 8, 'width_mm', 180, 'figtype', 'tiff', 'dpi', 600);
 
 
-    %% Combined plots 3D - Binomial 
+
+
+
+    if frequency_sampling == 1
+
+        save_fig(gcf,[outpath, '\\group_analysis\\',], 'RMS_motion_3D_grand_avg_Permutation_15Hz', 'fontsize', 10);
+
+    elseif frequency_sampling == 2
+
+        save_fig(gcf,[outpath, '\\group_analysis\\',], 'RMS_motion_3D_grand_avg_Permutation_250Hz', 'fontsize', 10);
+
+    end
+
+
+
+    %% Combined plots 3D - Binomial
 
     % RMS measures overall variability, which is helpful for identifying general movement artifacts.
     time_axis = linspace(from * 1000, to * 1000, length(idx_loop)); % in milliseconds
@@ -807,13 +904,13 @@ for cond=3 : num_conditions
     % Add Significant Movement Stars to the Plot
 
     % Define the path to the onset validation file
-    onset_validation_file = fullfile(outpath, 'onset_validation.xlsx');
+    onset_validation_file = fullfile(outpath, 'binomial_test_acceleration.xlsx');
 
     % Read the onset validation data
     onset_data = readtable(onset_validation_file, 'ReadVariableNames', true);
 
     % Identify significant body parts based on p-value threshold
-    significant_parts = onset_data.p_value < 0.05;
+    significant_parts = onset_data.pValue < 0.05;
     significant_body_parts = onset_data.parts(significant_parts);
 
     % Loop through the body parts and find their indices
@@ -835,10 +932,145 @@ for cond=3 : num_conditions
     end
 
     %saveas(gcf, [outpath, '\\group_analysis\\','RMS_motion_3D_grand_avg_PRO', '.jpg']); % Save the figure as a PNG image
-    save_fig(gcf,[outpath, '\\group_analysis\\',], 'RMS_motion_3D_grand_avg_Binomial', 'fontsize', 10);
+    %save_fig(gcf,[outpath, '\\group_analysis\\',], 'RMS_motion_3D_grand_avg_Binomial', 'fontsize', 10);
+
+
+
+    if frequency_sampling == 1
+
+        save_fig(gcf,[outpath, '\\group_analysis\\',], 'RMS_motion_3D_grand_avg_Binomial_15Hz', 'fontsize', 10);
+
+    elseif frequency_sampling == 2
+
+        save_fig(gcf,[outpath, '\\group_analysis\\',], 'RMS_motion_3D_grand_avg_Binomial_250Hz', 'fontsize', 10);
+
+    end
+
 
     disp('Updated plot with significant body parts saved!');
 
+
+    %% Combined plots 2D - Binomial
+
+    % RMS measures overall variability, which is helpful for identifying general movement artifacts.
+    time_axis = linspace(from * 1000, to * 1000, length(idx_loop)); % in milliseconds
+
+    % We will only label every third row (corresponding to the y-coordinates)
+    label_indices = 0:1:length(body_parts); % Indices for the y-coordinates (every third row)
+
+    % Define time points for onset lines
+    onset_times = [0, grand_avgOnsetTime_rev]; % Replace with your actual onset times
+
+    % Plot the 2D surface with correctly aligned Y-axis labels
+    figure('units', 'normalized', 'outerposition', [0 0 1 1]);
+    imagesc(time_axis, 1:size(rms_acceleration_t, 1), rms_acceleration_t);
+    colormap("turbo");
+    c = colorbar;
+    c.Label.String = 'RMS of Acceleration Magnitude [mm/s^2]';
+    c.Label.FontSize = 11;
+    caxis([0 max(rms_acceleration_t(:))]);
+    set(gca, 'YTick', 1:1:33, 'YTickLabel', body_parts);
+    xlabel('Time [ms]', 'FontSize', 11);
+    ylabel('Body Landmarks', 'FontSize', 11, 'Position', [-2976.620246249664,16.560959874129882,1]);
+    % title('Root Mean Square [RMS] of Acceleration Magnitude Over Time', 'FontSize', 14);
+    % subtitle('Windows of 10 ms', 'FontSize', 11.5);
+
+    % Set axis limits and labels
+    xlim([min(time_axis) max(time_axis)]);
+    ylim([1 size(rms_acceleration_t, 1)]); % Ensure the Y-axis matches the data size
+
+    % % Add grid lines
+    % for c = [head_parts(end), upper_body_parts(end), lower_body_parts(end)]
+    %     yline(c + 0.5, 'w-', 'LineWidth', 2);
+    % end
+
+    hold on;
+
+    % Add cluster labels on the left side of the plot
+    text(-2900, mean(head_parts), 'Head', 'FontSize', 11, 'FontWeight', 'bold', 'HorizontalAlignment', 'right', 'Rotation', 90);
+    text(-2900, mean(upper_body_parts)-2, 'Upper Body', 'FontSize', 11, 'FontWeight', 'bold', 'HorizontalAlignment', 'right', 'Rotation', 90);
+    text(-2900, mean(lower_body_parts)-2, 'Lower Body', 'FontSize', 11, 'FontWeight', 'bold', 'HorizontalAlignment', 'right', 'Rotation', 90);
+
+
+    % Recalculate and highlight top RMS body parts with correctly aligned labels
+    N = min(6, length(body_parts)); % Number of top body parts to highlight
+    [top_rms_values, top_rms_indices] = maxk(mean(rms_acceleration_t, 2), N); % Get top body part indices by RMS
+    rms_threshold = min(max(rms_acceleration_t(label_indices(top_rms_indices), :), [], 2)); % Average of max RMS values for top body parts
+
+    % Draw 3D "walls" with restricted height at RMS threshold
+    hold on;
+    for i = 1:length(onset_times)
+
+        % Define the color and style for each line
+        if i == 1
+            line_color = 'r';
+            line_style = '--';
+        else
+            line_color = 'k';
+            line_style = ':';
+        end
+
+        % Draw box edges at each onset time along x, y, and restricted z
+        plot3([onset_times(i), onset_times(i)], [1, 1], [0, rms_threshold], line_style, 'Color', line_color, 'LineWidth', 2.5); % Vertical edge
+        %plot3([onset_times(i), onset_times(i)], [1, size(rms_acceleration_t, 1)], [0, 0], line_style, 'Color', line_color, 'LineWidth', 2.5); % Bottom horizontal edge
+        plot3([onset_times(i), onset_times(i)], [1, size(rms_acceleration_t, 1)], [rms_threshold, rms_threshold], line_style, 'Color', line_color, 'LineWidth', 2.5); % Top horizontal edge
+    end
+
+    % Add Significant Movement Stars to the Plot
+    hold on;
+
+    % Define the path to the onset validation file
+    onset_validation_file = fullfile(outpath, 'binomial_test_acceleration.xlsx');
+
+    % Read the onset validation data
+    onset_data = readtable(onset_validation_file, 'ReadVariableNames', true);
+
+    % Identify significant body parts based on p-value threshold
+    significant_parts = onset_data.pValue < 0.05;
+    significant_body_parts = onset_data.parts(significant_parts);
+
+    % Loop through the body parts and find their indices
+    significant_indices = [];
+    for i = 1:length(significant_body_parts)
+        % Find the index of the significant body part in the body_parts list
+        idx = find(strcmp(body_parts, significant_body_parts{i}));
+        if ~isempty(idx)
+            significant_indices = [significant_indices; idx];
+        end
+    end
+
+    % Add stars for significant body parts at time 0
+    hold on;
+    for i = 1:length(significant_indices)
+        idx = significant_indices(i);
+        plot3(0, idx, max(rms_acceleration_t(:)) + 0.1, 'p', ...
+            'Marker', "pentagram", 'Color', 'w', 'MarkerSize', 15, 'LineWidth', 1, 'MarkerEdgeColor', 'k', 'MarkerFaceColor','w');
+    end
+
+    %saveas(gcf, [outpath, '\\group_analysis\\','RMS_motion_3D_grand_avg_PRO', '.jpg']); % Save the figure as a PNG image
+    %save_fig(gcf,[outpath, '\\group_analysis\\',], 'RMS_motion_2D_grand_avg_Binomial', 'fontsize', 10);
+
+
+
+    if frequency_sampling == 1
+
+        save_fig(gcf,[outpath, '\\group_analysis\\',], 'RMS_motion_2D_grand_avg_Binomial_15Hz', 'fontsize', 10);
+
+        acceleration_magnitude_15Hz = rms_acceleration_t;
+        time_axis_15Hz = time_axis;
+
+        save([outpath, 'Acceleration_magnitude_grand_avg_15Hz', '.mat'],'acceleration_magnitude_15Hz', 'time_axis_15Hz');
+
+    elseif frequency_sampling == 2
+
+        save_fig(gcf,[outpath, '\\group_analysis\\',], 'RMS_motion_2D_grand_avg_Binomial_250Hz', 'fontsize', 10);
+
+        acceleration_magnitude_250Hz = rms_acceleration_t;
+        time_axis_250Hz = time_axis;
+
+        save([outpath, 'Acceleration_magnitude_grand_avg_250Hz', '.mat'],'acceleration_magnitude_250Hz', 'time_axis_250Hz');
+
+    end
 
 end
 

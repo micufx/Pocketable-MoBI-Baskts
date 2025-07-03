@@ -1,14 +1,5 @@
 clc, clear, close all;
 
-%% P-values in 3D of Readiness Potential correlation 
-
-% This code performs non-parametric test Wilcoxon signed-rank test agains
-% zero to check significant changes from baseline in the grand average RP
-% and plots the resulst in 3D subplotting each participant.
-
-% Miguel Contreras-Altamirano, 2025
-
-
 %% Paths and Files
 
 mainpath = 'C:\Users\micua\Desktop\eeglab2023.0\'; % eeglab folder
@@ -75,18 +66,33 @@ for sub = 1:numParticipants
         % Load the features for the current channel
         load([out_subfold, participant, '_features_RP_', channel_names{chan_idx}, '.mat']); % Loading features
         means = features_Table(:, 1:num_bins); % Assuming the mean bins are the first 15 columns
+        condition = features_Table(:, end-1); % Condition column (hits=1, misses=0) before the label
 
-        % Loop through each bin and perform one-sample t-tests against 0
+        % Loop through each bin and perform t-tests
         for bin_idx = 1:num_bins
+            hit_values = means(condition.Condition == 1, bin_idx);
+            miss_values = means(condition.Condition == 0, bin_idx);
 
-            % Normality test
-            [~, p_shapiro] = lillietest(means{:,bin_idx});
-            normality_p_values(bin_idx) = p_shapiro;
+            % Check normality for hits
+            [~, p_shapiro_hits] = lillietest(hit_values{:,:});
+            normality_p_values_hits(chan_idx, bin_idx) = p_shapiro_hits;
 
-            % Perform the t-test or non-parametric test based on the normality result
-            if p_shapiro > 0.05 && num_bins<1
-                % Normality assumption not violated, use One-Sample T-Test
-                [h,p,ci,stats] = ttest(means{:,bin_idx}, 0); % Test if mean differs from 0
+            % Check normality for misses
+            [~, p_shapiro_misses] = lillietest(miss_values{:,:});
+            normality_p_values_misses(chan_idx, bin_idx) = p_shapiro_misses;
+
+            % Check homogeneity of variances between hits and misses
+            [p_levene, stats] = vartestn([ hit_values{:,:}; miss_values{:,:}],...
+                [ones(size( hit_values)); 2*ones(size(miss_values))], ...
+                'TestType', 'LeveneAbsolute', ...
+                'Display', 'off');
+            levenes_p_values(chan_idx, bin_idx) = p_levene;
+
+
+            % Perform the t-test if normality and homogeneity assumptions are not violated
+            if p_shapiro_hits > 0.05 && p_shapiro_misses > 0.05 && p_levene > 0.05 && num_bins<1
+
+                [h,p,ci,stats] = ttest2(hit_values{:,:}, miss_values{:,:});
                 t_values(chan_idx, bin_idx) = stats.tstat;
                 p_values(chan_idx, bin_idx) = p;
 
@@ -94,8 +100,8 @@ for sub = 1:numParticipants
 
             else
 
-                % Normality assumption violated, use a non-parametric test
-                [p, h, stats] = signrank(means{:,bin_idx}, 0);  % Wilcoxon signed-rank test
+                % Use a non-parametric test if assumptions are violated
+                [p, h, stats] = ranksum(hit_values{:,:}, miss_values{:,:}); % Non-Parametric Independent Samples Mann-Whitney U test
                 t_values(chan_idx, bin_idx) = stats.zval;
                 p_values(chan_idx, bin_idx) = p;
 
@@ -103,15 +109,13 @@ for sub = 1:numParticipants
 
             end
 
-
-
         end
+
     end
 
     % Significant values
     % Threshold for significance
     p_threshold = 0.05;   % FDR level
-
 
     % Correction for multiple comparisons
 
@@ -135,7 +139,7 @@ for sub = 1:numParticipants
     shading interp; % Optional: to smooth the color transitions
 
     % Customizing the Plot
-    %title('Readiness potential', 'FontSize', 12);
+    %title('Readiness Potential', 'FontSize', 12);
     title(['Sub. [', num2str(sub), ']'], 'FontSize', 11.5);
     xlabel('Bins', 'FontSize', 11);
     ylabel('Electrodes', 'FontSize', 11);
@@ -152,11 +156,10 @@ for sub = 1:numParticipants
     yticklabels(channel_names);
     ytickangle(30); % Option 2: Dedicated function for rotation
 
-
     if sub == 1
         % Colorbar
         c = colorbar('peer', gca);
-        %c.TickLabels = {'-', '', '', '', '', '+'};
+        %c.TickLabels = {'0', '', '', '', '',  '', '', '','1'};
         c.Label.String = 'p-Values';
         c.Label.FontSize = 11;
         c.Position = [0.952205882352941,0.246200607902736,0.002626050420168,0.538702379047929]; % Set the colorbar position
@@ -165,13 +168,13 @@ for sub = 1:numParticipants
     elseif sub==25
         % Colorbar
         c = colorbar('peer', gca);
-        %c.TickLabels = {'-', '', '', '', '', '+'};
+        %c.TickLabels = {'0', '', '', '', '', '', '', '','1'};
         c.Label.String = 'p-Values';
         c.Label.FontSize = 11;
         c.Position = [0.952205882352941,0.246200607902736,0.002626050420168,0.538702379047929]; % Set the colorbar position
         c.Limits = [0 1];
-
     end
+
 
 
     % Find indices of significant p-values after FDR correction
@@ -198,7 +201,6 @@ for sub = 1:numParticipants
 
     % Create a grid for the significance plane
     [X, Y] = meshgrid(xlims(1):xlims(2), ylims(1):ylims(2));
-
 
     % Plot the line at p_threshold
     Z = p_threshold * ones(size(X));
@@ -229,45 +231,56 @@ for sub = 1:numParticipants
             % Load the features for the current channel
             load([outpath, 'features_RP_avg_', channel_names{chan_idx}, '.mat']); % Loading features
             means = features_Table_avg(:, 1:num_bins); % Assuming the mean bins are the first 15 columns
+            condition = features_Table_avg(:, end-1); % Condition column (hits=1, misses=0) before the label
 
-            % Loop through each bin and perform one-sample t-tests against 0
+            % Loop through each bin and perform t-tests
             for bin_idx = 1:num_bins
+                hit_values = means(condition.Condition == 1, bin_idx);
+                miss_values = means(condition.Condition == 0, bin_idx);
 
-                % Normality test
-                [~, p_shapiro] = lillietest(means{:,bin_idx});
-                normality_p_values(bin_idx) = p_shapiro;
+                % Check normality for hits
+                [~, p_shapiro_hits] = lillietest(hit_values{:,:});
+                normality_p_values_hits(chan_idx, bin_idx) = p_shapiro_hits;
 
-                % Perform the t-test or non-parametric test based on the normality result
-                if p_shapiro > 0.05 && num_bins<1
-                    % Normality assumption not violated, use One-Sample T-Test
-                    [h,p,ci,stats] = ttest(means{:,bin_idx}, 0); % Test if mean differs from 0
+                % Check normality for misses
+                [~, p_shapiro_misses] = lillietest(miss_values{:,:});
+                normality_p_values_misses(chan_idx, bin_idx) = p_shapiro_misses;
+
+                % Check homogeneity of variances between hits and misses
+                [p_levene, stats] = vartestn([ hit_values{:,:}; miss_values{:,:}],...
+                    [ones(size( hit_values)); 2*ones(size(miss_values))], ...
+                    'TestType', 'LeveneAbsolute', ...
+                    'Display', 'off');
+                levenes_p_values(chan_idx, bin_idx) = p_levene;
+
+
+                % Perform the t-test if normality and homogeneity assumptions are not violated
+                if p_shapiro_hits > 0.05 && p_shapiro_misses > 0.05 && p_levene > 0.05 && num_bins<1
+
+                    [h,p,ci,stats] = ttest2(hit_values{:,:}, miss_values{:,:});
                     t_values(chan_idx, bin_idx) = stats.tstat;
                     p_values(chan_idx, bin_idx) = p;
 
-                    disp(['Parametric test used / Participant [', num2str(sub), ']: [T-test]']);
+                    disp(['Parametric test used: [T-test]']);
 
                 else
 
-                    % Normality assumption violated, use a non-parametric test
-                    [p, h, stats] = signrank(means{:,bin_idx}, 0);  % Wilcoxon signed-rank test
+                    % Use a non-parametric test if assumptions are violated
+                    [p, h, stats] = ranksum(hit_values{:,:}, miss_values{:,:}); % Non-Parametric Independent Samples Mann-Whitney U test
                     t_values(chan_idx, bin_idx) = stats.zval;
                     p_values(chan_idx, bin_idx) = p;
 
-                    disp(['Non-Parametric test used / Participant [', num2str(sub), ']: [Wilcoxon signed-rank test]']);
+                    disp(['Non-Parametric test used: [Wilcoxon signed-rank test]']);
 
                 end
-
             end
         end
-
-
 
         % Significant values
         % Threshold for significance
         p_threshold = 0.05;   % FDR level
 
-
-        % Correction for multiple comparisons
+        % Correction for pmultiple comparisons
 
         % % Bonferroni correction
         % numComparisons = num_bins * num_channels;  % Total number of comparisons
@@ -279,22 +292,19 @@ for sub = 1:numParticipants
         p_fdr_vector = mafdr(p_values_vector, 'BHFDR', true);
         p_fdr_matrix = reshape(p_fdr_vector, size(p_values));  % Reshape corrected p-values back to the original matrix form
 
-
         % Create Meshgrid for plotting
         [BinsGrid, ElectrodesGrid] = meshgrid(1:num_bins, 1:num_channels);
-
 
         % Plotting using surf
         surf(BinsGrid, ElectrodesGrid, p_fdr_matrix);
         shading interp; % Optional: to smooth the color transitions
 
         % Customizing the Plot
-        %title('Readiness potential', 'FontSize', 12);
-        title('Grand Average', 'FontSize', 11.5);
+        %title('Readiness Potential', 'FontSize', 12);
+        title(['Grand average'], 'FontSize', 11.5);
         xlabel('Bins', 'FontSize', 11);
         ylabel('Electrodes', 'FontSize', 11);
         zlabel('p-Values', 'FontSize', 11);
-        zlim([0 1]);
         colormap('parula');
         view(-135, 45); % Adjust the view angle for better visualization
         grid("on");
@@ -332,10 +342,13 @@ for sub = 1:numParticipants
         % Create a grid for the significance plane
         [X, Y] = meshgrid(xlims(1):xlims(2), ylims(1):ylims(2));
 
+        % The threshold value after FDR correction might not be the same as before
+        % So, we take the most conservative p-value (the highest one that is still significant)
+        fdr_threshold = max(p_fdr_matrix(p_fdr_matrix <= p_threshold));
+
         % Plot the line at p_threshold
         Z = p_threshold * ones(size(X));
         surf(X, Y, Z, 'FaceColor', "#D95319", 'FaceAlpha', 0.3, 'EdgeColor', 'none');
-
 
         % Release the hold on the plot
         hold off;
@@ -344,7 +357,7 @@ for sub = 1:numParticipants
     end
 
     % Adjust subplot spacing if needed
-    sgtitle('Wilcoxon signed-rank test for RP [RP vs 0]'); % Super title
+    sgtitle('Wilcoxon signed-rank test for RP [Hits vs Misses]'); % Super title
 
 end
 
@@ -355,7 +368,7 @@ for f = 1:numFigures
     
     figure(figures{f});  % Ensure you're making each figure current before saving
 
-    save_fig(figures{f},[outpath, '\\group_analysis\\',], ['3D_ttest_all_RP', '_', num2str(f),],...
+    save_fig(figures{f},[outpath, '\\group_analysis\\',], ['3D_ttest_all_conditions', '_', num2str(f),],...
         'fontsize', 8, ...
         'figsize', [35, 20], ...
         'figtypes', {'.png'},...
@@ -365,13 +378,11 @@ end
 % for f = 1:numFigures
 %     % Ensure you're making each figure current before saving
 %     figure(figures{f});
-%     saveas(figures{f}, [outpath, '\\group_analysis\\', 'ttest_all_RP', '_', num2str(f), '.jpg']);
-% 
+%     saveas(figures{f}, [outpath, '\\group_analysis\\', 'ttest_all_conditions', '_', num2str(f), '.png']);
+%     saveas(figures{f}, [outpath, 'ttest_all_conditions', '_', num2str(f), '.png']);
+%
 % end
 
 %%
-
-
-
 
 

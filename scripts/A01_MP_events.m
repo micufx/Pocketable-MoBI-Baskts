@@ -69,15 +69,15 @@ clc, clear, close all;
 
 %% Loading xdf files
 
-mainpath = 'C:\'; % eeglab folder
-path = 'C:\'; % raw data
-outpath = 'C:\\';
+mainpath = 'C:\Users\micua\Desktop\eeglab2023.0\'; % eeglab folder
+path = 'C:\Users\micua\OneDrive - Benemérita Universidad Autónoma de Puebla\NCP_Basketball\MediaPipe\'; % raw data
+outpath = 'C:\\Users\\micua\\OneDrive - Benemérita Universidad Autónoma de Puebla\\Oldenburg_University\\Thesis\\data_hoops\\';
 files = dir( fullfile( path,'\*.xdf')); % listing data sets
 
 
 %% Selecting participant
 
-for sub=1 : 1%length(files)
+for sub=16 : 16%length(files)
 
     participant = extractBefore(files(sub).name, '.xdf');
     out_subfold = [outpath, participant, '\\'];
@@ -154,6 +154,9 @@ for sub=1 : 1%length(files)
     % % Interpolation only for the valid range
     % timeseries_mp = interp1(timestamps_mp, timeseries_mp', timestamps_eeg_valid, 'linear')';
     % timestamps_mp = timestamps_eeg;
+
+    timeseries_mp_raw = timeseries_mp;
+    timestamps_mp_raw = timestamps_mp;
 
     % Enable extrapolation in interp1
     timeseries_mp = interp1(timestamps_mp, timeseries_mp', timestamps_eeg, 'linear', 'extrap')';
@@ -315,7 +318,6 @@ for sub=1 : 1%length(files)
         disp('No onsets detected!');
     end
 
-    %%
 
     %% Displaying false onsets
 
@@ -692,3 +694,6 @@ for sub=1 : 1%length(files)
     disp([participant, ' finalized!']);
 
 end
+
+
+

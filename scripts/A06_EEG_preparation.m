@@ -9,9 +9,9 @@ clc, clear, close all;
 
 %% EEG data preparation
 
-mainpath = 'C:\'; % eeglab folder
-path = 'C:\'; % raw data
-outpath = 'C:\\';
+mainpath = 'C:\Users\micua\Desktop\eeglab2023.0\'; % eeglab folder
+path = 'C:\Users\micua\OneDrive - Benemérita Universidad Autónoma de Puebla\NCP_Basketball\MediaPipe\'; % raw data
+outpath = 'C:\\Users\\micua\\OneDrive - Benemérita Universidad Autónoma de Puebla\\Oldenburg_University\\Thesis\\data_hoops\\';
 files = dir( fullfile( path,'\*.xdf')); % listing data sets
 
 nochans = {'AccX','AccY','AccZ','GyroX','GyroY','GyroZ', ... % channels to be ignored
@@ -38,9 +38,6 @@ for sub = 1 : length(files)
     out_subfold = [outpath, participant, '\\'];
     load([out_subfold, 'events_all_', participant,'.mat']); % Loading events file
 
-
-    %% ICA Based Artefact Attenuation
-
     [ALLEEG EEG CURRENTSET ALLCOM] = eeglab; % Open eeglab
 
     % Import, channel locs, events, reref
@@ -51,6 +48,9 @@ for sub = 1 : length(files)
     EEG = pop_select(EEG, 'nochannel', nochans); % Select relevant channels
     eeglab redraw % Updating GUI
     % EEG = pop_saveset( EEG, 'filename', [participant, '.set'],'filepath', out_subfold); % Saving light file
+
+
+    %% ICA Based Artefact Attenuation
 
     nchan_ori = EEG.nbchan; % original number of channels
 

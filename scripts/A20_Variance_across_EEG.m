@@ -10,9 +10,9 @@ clc, clear, close all;
 
 %% Settings data
 
-mainpath = 'C:\'; % eeglab folder
-path = 'C:\';
-outpath = 'C:\\';
+mainpath = 'C:\Users\micua\Desktop\eeglab2023.0\'; % eeglab folder
+path = 'C:\Users\micua\OneDrive - Benemérita Universidad Autónoma de Puebla\NCP_Basketball\MediaPipe\';
+outpath = 'C:\\Users\\micua\\OneDrive - Benemérita Universidad Autónoma de Puebla\\Oldenburg_University\\Thesis\\data_hoops\\';
 files = dir(fullfile(path, '\*.xdf')); % listing data sets
 
 channels_RP_top = {'FC1', 'Fz', 'FC2'};   % Channels for top row (frontal)

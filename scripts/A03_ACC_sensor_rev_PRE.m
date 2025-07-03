@@ -11,9 +11,9 @@ clc, clear, close all;
 
 %% Loading data
 
-mainpath = 'C:\'; % eeglab folder
-path = 'C:\';
-outpath = 'C:\\';
+mainpath = 'C:\Users\micua\Desktop\eeglab2023.0\'; % eeglab folder
+path = 'C:\Users\micua\OneDrive - Benemérita Universidad Autónoma de Puebla\NCP_Basketball\MediaPipe\';
+outpath = 'C:\\Users\\micua\\OneDrive - Benemérita Universidad Autónoma de Puebla\\Oldenburg_University\\Thesis\\data_hoops\\';
 files = dir( fullfile( path,'\*.xdf')); % listing data sets
 
 num_conditions = 3; % (Conditions and overall: 1=hit 2=miss 3=all)
@@ -170,7 +170,7 @@ for sub = 1 : 1%length(files)
         % % Interpolation
         % timeseries_acc = interp1(timestamps_acc, timeseries_acc', timestamps_eeg, 'linear')';
         % timestamps_acc = timestamps_eeg;
-        % 
+        
         % % Find the time of those indexes in the ACC data
         % markers_time_acc = onsetTimes;
         % markers_sample_acc = onsetFrames;

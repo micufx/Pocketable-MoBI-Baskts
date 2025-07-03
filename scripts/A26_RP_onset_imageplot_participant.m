@@ -13,9 +13,9 @@ clc, clear, close all;
 
 %% EEG data preparation
 
-mainpath = 'C:\'; % eeglab folder
-path = 'C:\\';  % raw data
-outpath = 'C:\\';
+mainpath = 'C:\Users\micua\Desktop\eeglab2023.0\'; % eeglab folder
+path = 'C:\Users\micua\OneDrive - Benemérita Universidad Autónoma de Puebla\NCP_Basketball\MediaPipe\';  % raw data
+outpath = 'C:\\Users\\micua\\OneDrive - Benemérita Universidad Autónoma de Puebla\\Oldenburg_University\\Thesis\\data_hoops\\';
 files = dir( fullfile( path,'\*.xdf')); % listing data sets
 
 % Permutation parameters
@@ -136,10 +136,10 @@ for sub = 1 : length(files)
         % Extract x, y, and z rows for the current body part
         x = averageTimeseriesMp((i-1)*3 + 1, :);
         y = averageTimeseriesMp((i-1)*3 + 2, :);
-        %z = averageTimeseriesMp((i-1)*3 + 3, :);   --> Taking out z axis
+        z = averageTimeseriesMp((i-1)*3 + 3, :);   % --> Taking out z axis
 
         % Calculate magnitude
-        acceleration_magnitude_trial(i, :) = sqrt(x.^2 + y.^2);
+        acceleration_magnitude_trial(i, :) = sqrt( x.^2 + y.^2 + z.^2  ); %  
     end
 
     % RMS over time for acceleration magnitude
@@ -169,22 +169,22 @@ for sub = 1 : length(files)
         'left ankle', 'right ankle', 'left heel', 'right heel', 'left foot index', 'right foot index'
         };
 
-%%
+    %%
     % %% Pose Landmarks Artifacts - 3D Surface Plot with Adjusted Labels for Y Coordinates
-    % 
+    %
     % % RMS measures overall variability, which is helpful for identifying general movement artifacts.
     % time_axis = linspace(from * 1000, to * 1000, length(idx_loop)); % in milliseconds
-    % 
+    %
     % % We will only label every third row (corresponding to the y-coordinates)
     % label_indices = 0:1:length(body_parts); % Indices for the y-coordinates (every third row)
-    % 
+    %
     % % Define time points for onset lines
     % onset_times = [0, avgOnsetTime_rev]; % Replace with your actual onset times
-    % 
+    %
     % % Plot the 3D surface with correctly aligned Y-axis labels
     % figure('units', 'normalized', 'outerposition', [0 0 1 1]);
     % [X, Y] = meshgrid(time_axis, 1:length(body_parts)); % Use body_parts length directly to match rows
-    % 
+    %
     % % Plot the surface
     % surf(X, Y, rms_acceleration_t, 'EdgeColor', 'none');
     % colormap("turbo");
@@ -192,15 +192,15 @@ for sub = 1 : length(files)
     % c.Label.String = 'RMS of Acceleration Magnitude [mm/s^2]';
     % c.Label.FontSize = 11;
     % caxis([0 max(rms_acceleration_t(:))]);
-    % 
+    %
     % % Set axis limits and labels
     % xlim([min(time_axis) max(time_axis)]);
     % ylim([1 size(rms_acceleration_t, 1)]); % Ensure the Y-axis matches the data size
-    % 
+    %
     % % Adjust Y-axis labels
     % set(gca, 'YTick', 1:length(body_parts), 'YTickLabel', body_parts, 'YTickLabelRotation', 30,  'XTickLabelRotation', 30);
-    % 
-    % 
+    %
+    %
     % % Label axes
     % xlabel('Time [ms]', 'FontSize', 11);
     % ylabel('Body Landmarks', 'FontSize', 11);
@@ -208,13 +208,13 @@ for sub = 1 : length(files)
     % title('Root Mean Square [RMS] of Acceleration Magnitude Over Time', 'FontSize', 12);
     % subtitle(['Windows of ', num2str(sec*1000), ' [ms]'], 'FontSize', 11.5);
     % view([110, 40]);
-    % 
+    %
     % % Recalculate and highlight top RMS body parts with correctly aligned labels
     % N = min(6, length(body_parts)); % Number of top body parts to highlight
     % [~, top_rms_indices] = maxk(mean(rms_acceleration_t, 2), N); % Get top body part indices by RMS
     % rms_threshold = min(max(rms_acceleration_t(label_indices(top_rms_indices), :), [], 2)); % Min of max RMS values for top body parts
-    % 
-    % 
+    %
+    %
     % % Draw 3D "walls" with restricted height at RMS threshold
     % hold on;
     % for i = 1:length(onset_times)
@@ -226,13 +226,13 @@ for sub = 1 : length(files)
     %         line_color = 'k';
     %         line_style = '--';
     %     end
-    % 
+    %
     %     % Draw box edges at each onset time along x, y, and restricted z
     %     plot3([onset_times(i), onset_times(i)], [1, 1], [0, rms_threshold], line_style, 'Color', line_color, 'LineWidth', 2); % Vertical edge
     %     plot3([onset_times(i), onset_times(i)], [1, size(rms_acceleration_t, 1)], [0, 0], line_style, 'Color', line_color, 'LineWidth', 2); % Bottom horizontal edge
     %     plot3([onset_times(i), onset_times(i)], [1, size(rms_acceleration_t, 1)], [rms_threshold, rms_threshold], line_style, 'Color', line_color, 'LineWidth', 2); % Top horizontal edge
     % end
-    % 
+    %
     % % Highlight top RMS body parts with labels
     % offset = 0.1; % Offset for label positioning
     % for i = 1:N
@@ -240,14 +240,14 @@ for sub = 1 : length(files)
     %     text(max(time_axis) + offset, top_rms_indices(i), max(rms_acceleration_t(top_rms_indices(i), :)), ...
     %         body_parts{top_rms_indices(i)}, 'Color', 'k', 'FontSize', 8, 'FontWeight', 'bold', 'HorizontalAlignment', 'center');
     % end
-    % 
+    %
     % % Enable grid for better visualization
     % grid on;
-    % 
+    %
     % % Rotate the fig for better visualization
     % azimuth_angle = 3.349649635036496e+02;
     % elevation_angle = 81.093181818181820;
-    % 
+    %
     % view([azimuth_angle, elevation_angle]); % Replace with your desired values
 
 
@@ -268,9 +268,9 @@ for sub = 1 : length(files)
     xline(0, '--', 'Color', 'r', 'LineWidth', 2); % Add red dashed line at 0 ms
     xline(avgOnsetTime_rev, ':', 'Color', 'k', 'LineWidth', 2);    % Add a red dashed line at 0 ms to indicate movement onset
 
-%%
+    %%
     % %% Plot Acceleration Magnitude as Heatmap 2D
-    % 
+    %
     % % Plot with labels
     % fig_velocity = figure('units', 'normalized', 'outerposition', [0 0 1 1]);
     % imagesc(EEG.times, 1:size(rms_acceleration_t, 1), rms_acceleration_t);                    % Plot RMS over time for MediaPipe data
@@ -283,7 +283,7 @@ for sub = 1 : length(files)
     % ylabel('Body Landmarks', 'FontSize', 11);
     % title('Root Mean Square [RMS] of Acceleration Magnitude Over Time', 'FontSize', 12);
     % subtitle(['Windows of ', num2str(sec*1000), ' [ms]'], 'FontSize', 11.5);
-    % 
+    %
     % xline(0, '--', 'Color', 'r', 'LineWidth', 2);    % Add a red dashed line at 0 ms to indicate movement onset
     % xline(avgOnsetTime_rev, ':', 'Color', 'k', 'LineWidth', 2);    % Add a red dashed line at 0 ms to indicate movement onset
 
@@ -770,96 +770,96 @@ for sub = 1 : length(files)
     % % Save a figure with 2-column width (180 mm) as TIFF
     % % save_fig_pro(gcf, [outpath, '\\group_analysis\\',], 'RMS_motion_3D_grand_avg', 'fontsize', 8, 'width_mm', 180, 'figtype', 'tiff', 'dpi', 600);
 
-    
+
     % Save the Plot
     save_fig(gcf, out_subfold, ['RMS_motion_3D_Pro_', participant], 'fontsize', 12);
 
 
     %% Group Level RMS info
-    % 
+    %
     % % Prepare the time axis and labels
     % time_axis = linspace(from * 1000, to * 1000, size(rms_acceleration_t, 2)); % X-axis time labels in milliseconds
     % zero_column_index = find(time_axis == 0, 1); % Find the column corresponding to time 0 (if it exists)
-    % 
+    %
     % % Convert the data matrix to a cell array for labeling
     % data_with_labels = cell(size(rms_acceleration_t, 1) + 1, size(rms_acceleration_t, 2) + 1);
-    % 
+    %
     % % Add column headers (time points)
     % data_with_labels(1, 2:end) = num2cell(time_axis);
-    % 
+    %
     % % Add row headers (body parts)
     % data_with_labels(2:end, 1) = body_parts';
-    % 
+    %
     % % Fill in the data matrix
     % data_with_labels(2:end, 2:end) = num2cell(rms_acceleration_t);
-    % 
+    %
     % % % Highlight the time 0 column (optional: add "Time 0" label to the header)
     % % if ~isempty(zero_column_index)
     % %     data_with_labels{1, zero_column_index + 1} = 'Time 0';
     % % end
-    % 
+    %
     % % Define the output file path using the participant's folder and name
     % output_csv_file = fullfile(out_subfold, ['rms_acceleration_', participant, '.csv']);
-    % 
+    %
     % % Write the data with labels to a CSV file
     % writecell(data_with_labels, output_csv_file);
-    % 
+    %
     % % Display a message for confirmation
     % disp(['RMS acceleration data has been saved to ', output_csv_file]);
 
 
     %% Single-trial Level RMS info
-     
-    % Pre-allocate matrix to store concatenated RMS values for time 0
-    concatenated_rms_time0 = [];
-
-    % Generate the time axis if not already defined
-    time_axis = linspace(from * 1000, to * 1000, size(landmarksPerTrial{1}, 2));
-
-    % Iterate over trials
-    for trial_idx = 1:length(landmarksPerTrial)
-        % Extract the landmarks for the current trial
-        trial_landmarks = landmarksPerTrial{trial_idx}; % [99 landmarks x time frames]
-
-        % Extract x and y coordinates (exclude z axis)
-        x_coords = trial_landmarks(1:3:end-2, :); % x-coordinates
-        y_coords = trial_landmarks(2:3:end-1, :); % y-coordinates
-
-        % Calculate the acceleration magnitude (RMS for each landmark)
-        acceleration_magnitude = sqrt(x_coords.^2 + y_coords.^2);
-
-        % RMS over time for acceleration magnitude (time windows are irrelevant for single trial)
-        rms_acceleration = std(acceleration_magnitude, [], 2) * 1000; % RMS per landmark, scaled
-
-        % Extract RMS values at time 0 (if available)
-        zero_time_index = find(time_axis == 0, 1); % Find the index for time 0
-        if ~isempty(zero_time_index)
-            rms_time0 = acceleration_magnitude(:, zero_time_index); % Extract RMS at time 0
-            concatenated_rms_time0 = [concatenated_rms_time0; rms_time0]; % Append to result matrix
-        else
-            warning('Time 0 not found in time axis for trial %d.', trial_idx);
-        end
-    end
-
-    % Prepare the final CSV data with body part labels and concatenated values
-    final_csv_data = cell(size(concatenated_rms_time0, 1) + 1, 2);
-    final_csv_data(1, :) = {'Body Landmark', 'RMS at Time 0 [mm/s^2]'};
-
-    % Repeat body part labels for all trials
-    repeated_body_parts = repmat(body_parts', length(concatenated_rms_time0) / length(body_parts), 1);
-    final_csv_data(2:end, 1) = repeated_body_parts;
-
-    % Add RMS values to the second column
-    final_csv_data(2:end, 2) = num2cell(concatenated_rms_time0);
-
-    % Define the output file path
-    output_csv_file_single_trial = fullfile(out_subfold, ['rms_time0_single_trial_', participant, '.csv']);
-
-    % Write the data to a CSV file
-    writecell(final_csv_data, output_csv_file_single_trial);
-
-    % Display a message for confirmation
-    disp(['Single-trial RMS time 0 data has been saved to ', output_csv_file_single_trial]);
+    %
+    % % Pre-allocate matrix to store concatenated RMS values for time 0
+    % concatenated_rms_time0 = [];
+    %
+    % % Generate the time axis if not already defined
+    % time_axis = linspace(from * 1000, to * 1000, size(landmarksPerTrial{1}, 2));
+    %
+    % % Iterate over trials
+    % for trial_idx = 1:length(landmarksPerTrial)
+    %     % Extract the landmarks for the current trial
+    %     trial_landmarks = landmarksPerTrial{trial_idx}; % [99 landmarks x time frames]
+    %
+    %     % Extract x and y coordinates (exclude z axis)
+    %     x_coords = trial_landmarks(1:3:end-2, :); % x-coordinates
+    %     y_coords = trial_landmarks(2:3:end-1, :); % y-coordinates
+    %
+    %     % Calculate the acceleration magnitude (RMS for each landmark)
+    %     acceleration_magnitude = sqrt(x_coords.^2 + y_coords.^2);
+    %
+    %     % RMS over time for acceleration magnitude (time windows are irrelevant for single trial)
+    %     rms_acceleration = std(acceleration_magnitude, [], 2) * 1000; % RMS per landmark, scaled
+    %
+    %     % Extract RMS values at time 0 (if available)
+    %     zero_time_index = find(time_axis == 0, 1); % Find the index for time 0
+    %     if ~isempty(zero_time_index)
+    %         rms_time0 = acceleration_magnitude(:, zero_time_index); % Extract RMS at time 0
+    %         concatenated_rms_time0 = [concatenated_rms_time0; rms_time0]; % Append to result matrix
+    %     else
+    %         warning('Time 0 not found in time axis for trial %d.', trial_idx);
+    %     end
+    % end
+    %
+    % % Prepare the final CSV data with body part labels and concatenated values
+    % final_csv_data = cell(size(concatenated_rms_time0, 1) + 1, 2);
+    % final_csv_data(1, :) = {'Body Landmark', 'RMS at Time 0 [mm/s^2]'};
+    %
+    % % Repeat body part labels for all trials
+    % repeated_body_parts = repmat(body_parts', length(concatenated_rms_time0) / length(body_parts), 1);
+    % final_csv_data(2:end, 1) = repeated_body_parts;
+    %
+    % % Add RMS values to the second column
+    % final_csv_data(2:end, 2) = num2cell(concatenated_rms_time0);
+    %
+    % % Define the output file path
+    % output_csv_file_single_trial = fullfile(out_subfold, ['rms_time0_single_trial_', participant, '.csv']);
+    %
+    % % Write the data to a CSV file
+    % writecell(final_csv_data, output_csv_file_single_trial);
+    %
+    % % Display a message for confirmation
+    % disp(['Single-trial RMS time 0 data has been saved to ', output_csv_file_single_trial]);
 
 
     %% Single-trial Level RMS Calculation with Difference to Pre-time 0 Sample
@@ -878,9 +878,10 @@ for sub = 1 : length(files)
         % Extract x and y coordinates (exclude z axis)
         x_coords = trial_landmarks(1:3:end-2, :); % x-coordinates
         y_coords = trial_landmarks(2:3:end-1, :); % y-coordinates
+        z_coords = trial_landmarks(3:3:end, :); % Extract every third row starting from the 3rd
 
         % Calculate the acceleration magnitude (RMS for each landmark)
-        acceleration_magnitude = sqrt(x_coords.^2 + y_coords.^2);
+        acceleration_magnitude = sqrt( x_coords.^2  +  y_coords.^2  +  z_coords.^2 );  %   
 
         % Extract RMS values at time 0 and the sample just before time 0
         zero_time_index = find(time_axis == 0, 1); % Find the index for time 0
@@ -913,15 +914,13 @@ for sub = 1 : length(files)
     final_csv_data(2:end, 2) = num2cell(concatenated_rms_diff);
 
     % Define the output file path
-    output_csv_file_diff = fullfile(out_subfold, ['rms_diff_time0_pre_', participant, '.csv']);
+    output_csv_file_diff = fullfile(out_subfold, ['acceleration_magnitude_', participant, '.csv']);
 
     % Write the data to a CSV file
     writecell(final_csv_data, output_csv_file_diff);
 
     % Display a message for confirmation
     disp(['Single-trial RMS difference data has been saved to ', output_csv_file_diff]);
-
-  
 
 end
 

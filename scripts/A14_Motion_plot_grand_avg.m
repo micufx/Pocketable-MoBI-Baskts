@@ -9,9 +9,9 @@ clc, clear, close all;
 
 %% EEG data loading
 
-mainpath = 'C:\'; % eeglab folder
-path = 'C:\';
-outpath = 'C:\';
+mainpath = 'C:\Users\micua\Desktop\eeglab2023.0\'; % eeglab folder
+path = 'C:\Users\micua\OneDrive - Benemérita Universidad Autónoma de Puebla\NCP_Basketball\MediaPipe\';
+outpath = 'C:\\Users\\micua\\OneDrive - Benemérita Universidad Autónoma de Puebla\\Oldenburg_University\\Thesis\\data_hoops\\';
 files = dir( fullfile( path,'\*.xdf')); % listing data sets
 
 
@@ -21,7 +21,7 @@ num_conditions = 3; % (Conditions and overall: 1=hit 2=miss 3=all)
 %% Selecting participant
 
 
-for cond=1 : num_conditions
+for cond=3 : num_conditions
 
 
     % Loading desired data

@@ -11,11 +11,11 @@ clc, clear, close all;
 
 %% EEG pre-processing
 
-mainpath = 'C:\'; % eeglab folder
-path = 'C:\'; % raw data
-outpath = 'C:\\';
+mainpath = 'C:\Users\micua\Desktop\eeglab2023.0\'; % eeglab folder
+path = 'C:\Users\micua\OneDrive - Benemérita Universidad Autónoma de Puebla\NCP_Basketball\MediaPipe\'; % raw data
+outpath = 'C:\\Users\\micua\\OneDrive - Benemérita Universidad Autónoma de Puebla\\Oldenburg_University\\Thesis\\data_hoops\\';
 files = dir( fullfile( path,'\*.xdf')); % listing data sets
-vp_path = 'C:\\eeglab2023.0\plugins\ICLabel\viewprops'; % IC label needs the folder of the plugin
+vp_path = 'C:\Users\micua\Desktop\eeglab2023.0\plugins\ICLabel\viewprops'; % IC label needs the folder of the plugin
 
 nochans = {'AccX','AccY','AccZ','GyroX','GyroY','GyroZ', ... % channels to be ignored
     'QuatW','QuatX','QuatY','QuatZ'};

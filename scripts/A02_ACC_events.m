@@ -12,14 +12,14 @@ clc, clear, close all;
 
 %% Loading data
 
-mainpath = 'C:\'; % eeglab folder
-path = 'C:\';
-outpath = 'C:\\';
+mainpath = 'C:\Users\micua\Desktop\eeglab2023.0\'; % eeglab folder
+path = 'C:\Users\micua\OneDrive - Benemérita Universidad Autónoma de Puebla\NCP_Basketball\MediaPipe\';
+outpath = 'C:\\Users\\micua\\OneDrive - Benemérita Universidad Autónoma de Puebla\\Oldenburg_University\\Thesis\\data_hoops\\';
 files = dir( fullfile( path,'\*.xdf')); % listing data sets
 
 num_conditions = 3; % (Conditions and overall: 1=hit 2=miss 3=all)
 
-for sub = 1 : 1%length(files)
+for sub = 1 : length(files)
 
     participant = extractBefore(files(sub).name, '.xdf');
     out_subfold = [outpath, participant, '\\'];
@@ -97,7 +97,7 @@ for sub = 1 : 1%length(files)
     timestamps_acc = data{1, acc}.time_stamps; % Sensor zime-series
 
     timeseries_acc_marker = data{1, acc_marker}.time_series; % Sensor time-series
-    timestamps_acc_marker = data{1, acc_marker}.time_stamps; % Sensor zime-series
+    timestamps_acc_marker = data{1, acc_marker}.time_stamps; % Sensor time-series
 
     timeseries_eeg = data{1, eeg}.time_series; % EEG time-series
     timestamps_eeg = data{1, eeg} .time_stamps; % EEG timestamps
