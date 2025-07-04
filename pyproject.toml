@@ -8,11 +8,13 @@ authors = [
 package-mode = false
 license = {text = "MIT"}
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.12,<4.0"
 dependencies = [
     "mne (>=1.9.0,<2.0.0)",
     "ipykernel (>=6.29.5,<7.0.0)",
-    "pandas (>=2.3.0,<3.0.0)"
+    "pandas (>=2.3.0,<3.0.0)",
+    "mne-icalabel (>=0.7.0,<0.8.0)",
+    "onnxruntime (>=1.22.0,<2.0.0)"
 ]
 
 
