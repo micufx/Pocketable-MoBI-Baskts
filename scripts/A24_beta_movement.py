@@ -24,7 +24,7 @@ info_eeg['Bad_components_merged'] = info_eeg[bad_components_cols].apply(lambda r
 info_eeg['Bad_trials_merged'] = info_eeg[bad_trials_cols].apply(lambda row: [item for item in row if pd.notnull(item)], axis=1)
 
 # define ROI
-roi = ['C3', 'Cz', 'C4', 'P3', 'Pz', 'P4']  # Define your region of interest (ROI) channels
+roi = ['Cz']  # Define your region of interest (ROI) channels
 
 # List all .set files in the directory
 set_files = list(set_files_dir.glob('*.set'))
@@ -70,13 +70,13 @@ for set_file in set_files:
         average=True,
         return_itc=True,
         decim=3,
-        picks=roi
-    )
-
-    power.plot_joint(
-    baseline=(-2.5, -2.0), mode="mean", tmin=-2.5, tmax=1.5, timefreqs=[(-1, 15), (0, 15), (1, 15)],
-    title=f"{participant} - Power",
     )
 
     # store the plot
     plot_file = DIR_PLOTS.joinpath(f"{participant}_power_plot.png")
+    
+    power.plot_joint(
+    baseline=(-2.5, -2.0), mode="mean", tmin=-2.5, tmax=1.5, timefreqs=[(-1, 15), (0, 15), (1, 15)],
+    title=f"{participant} - Power",
+    ).savefig(plot_file, dpi=300, bbox_inches='tight')
+
