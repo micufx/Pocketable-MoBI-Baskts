@@ -1,5 +1,6 @@
 import mne
 from mne.io import read_raw_eeglab
+from mne_icalabel import label_components
 import numpy as np
 from pathlib import Path
 import pandas as pd
@@ -25,6 +26,7 @@ info_eeg['Bad_trials_merged'] = info_eeg[bad_trials_cols].apply(lambda row: [ite
 
 # define ROI
 roi = ['Cz']  # Define your region of interest (ROI) channels
+ica_reject_option = 'ICLabel'  # Define the ICA rejection option, e.g., 'Miguel' or 'None'
 
 # List all .set files in the directory
 set_files = list(set_files_dir.glob('*.set'))
@@ -46,11 +48,22 @@ for set_file in set_files:
     # Artifact rejection (bad components)
     idx = info_eeg[info_eeg['Subject_ID'] == participant].index[0]
     bad_comps = info_eeg.iloc[idx]['Bad_components_merged']  # e.g., '[1,2,3]
-    if bad_comps:
+    if ica_reject_option == 'Miguel' and bad_comps:
         ica = mne.preprocessing.read_ica_eeglab(set_file)
         # prep bad_comps for python, shift index by -1
         bad_comps = [int(comp) - 1 for comp in bad_comps]
         epochs = ica.apply(epochs, exclude=bad_comps)
+    elif ica_reject_option == 'ICLabel':
+        ica = mne.preprocessing.read_ica_eeglab(set_file)
+        # Use ICLabel to reject components
+        ic_labels = label_components(raw, ica, method="iclabel")
+        labels = ic_labels["labels"]
+        exclude_idx = [
+            idx for idx, label in enumerate(labels) if label not in ["brain"]
+        ]
+        reconst_raw = raw.copy()
+        ica.apply(reconst_raw, exclude=exclude_idx)
+
 
     # Bad trials rejection
     bad_trials = info_eeg.iloc[idx]['Bad_trials_merged']
@@ -58,8 +71,7 @@ for set_file in set_files:
         epochs.drop(bad_trials)
 
     # Re-reference to TP9/TP10 if present
-    if 'TP9' in epochs.ch_names and 'TP10' in epochs.ch_names:
-        epochs.set_eeg_reference(['TP9', 'TP10'])
+    epochs.set_eeg_reference('average')
 
     freqs = np.logspace(*np.log10([8, 32]), num=12)
     n_cycles = freqs / 2.0  # different number of cycle per frequency
