@@ -68,11 +68,15 @@ clc, clear, close all;
 
 %% Loading xdf files
 
-mainpath = 'C:\Users\micua\Desktop\eeglab2023.0\'; % eeglab folder
-path = 'C:\Users\micua\OneDrive - Benemérita Universidad Autónoma de Puebla\NCP_Basketball\MediaPipe\';
-outpath = 'C:\\Users\\micua\\OneDrive - Benemérita Universidad Autónoma de Puebla\\Oldenburg_University\\Thesis\\data_hoops\\';
+mainpath = 'L:\Downloads\eeglab2023.0\'; % eeglab folder
+path = 'L:\Downloads\basketball_RP\NCP_Basketball\MediaPipe\';
+outpath = 'L:\Downloads\basketball_RP\Oldenburg_University\Thesis\data_hoops\';
 files = dir( fullfile( path,'\*.xdf')); % listing data sets
 
+% Add EEGLAB properly
+if exist('eeglab','file') ~= 2
+    addpath(mainpath);
+end
 
 %% Selecting participant
 

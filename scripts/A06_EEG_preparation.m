@@ -9,10 +9,15 @@ clc, clear, close all;
 
 %% EEG data preparation
 
-mainpath = 'C:\Users\micua\Desktop\eeglab2023.0\'; % eeglab folder
-path = 'C:\Users\micua\OneDrive - Benemérita Universidad Autónoma de Puebla\NCP_Basketball\MediaPipe\'; % raw data
-outpath = 'C:\\Users\\micua\\OneDrive - Benemérita Universidad Autónoma de Puebla\\Oldenburg_University\\Thesis\\data_hoops\\';
+mainpath = 'L:\Downloads\eeglab2023.0\'; % eeglab folder
+path = 'L:\Downloads\basketball_RP\NCP_Basketball\MediaPipe\';
+outpath = 'L:\Downloads\basketball_RP\Oldenburg_University\Thesis\data_hoops\';
 files = dir( fullfile( path,'\*.xdf')); % listing data sets
+
+% Add EEGLAB properly
+if exist('eeglab','file') ~= 2
+    addpath(mainpath);
+end
 
 nochans = {'AccX','AccY','AccZ','GyroX','GyroY','GyroZ', ... % channels to be ignored
     'QuatW','QuatX','QuatY','QuatZ'};
@@ -57,8 +62,8 @@ for sub = 1 : length(files)
     % Channel artefacts topography
     %EEG = pop_rejchan(EEG);                 % Bad chans detection;
     rms = std(EEG.data');                    % Standard deviation across channels to identify bad ones
-    thres = mean(rms) + 1*std(rms);          % Define threshold for bad channel marking
-    ind = find(rms > thres);
+    thresh_chan = mean(rms) + 1*std(rms);          % Define threshold for bad channel marking
+    ind = find(rms > thresh_chan);
 
     % RMS over time (image plot) for each subject
     sec = 30;
@@ -86,7 +91,7 @@ for sub = 1 : length(files)
     subplot(2, 2, 4);
     plot(rms, 'k', 'LineWidth', 1);    % plot lines of channel stds with threshold
     hold on;
-    plot(repmat(thres, 1, 32), 'r', 'LineStyle','--', 'LineWidth', 2);
+    plot(repmat(thresh_chan, 1, 32), 'r', 'LineStyle','--', 'LineWidth', 2);
     title(['Outliers: ', mat2str(ind)], 'Interpreter', 'none');
     subtitle('Threshold: [Mean RMS + 1 SD)]');
     xlabel('Electrodes');

@@ -10,10 +10,15 @@ clc, clear, close all;
 
 %% EEG data preparation
 
-mainpath = 'C:\Users\micua\Desktop\eeglab2023.0\'; % eeglab folder
-path = 'C:\Users\micua\OneDrive - Benemérita Universidad Autónoma de Puebla\NCP_Basketball\MediaPipe\';
-outpath = 'C:\\Users\\micua\\OneDrive - Benemérita Universidad Autónoma de Puebla\\Oldenburg_University\\Thesis\\data_hoops\\';
+mainpath = 'L:\Downloads\eeglab2023.0\'; % eeglab folder
+path = 'L:\Downloads\basketball_RP\NCP_Basketball\MediaPipe\';
+outpath = 'L:\Downloads\basketball_RP\Oldenburg_University\Thesis\data_hoops\';
 files = dir( fullfile( path,'\*.xdf')); % listing data sets
+
+% Add EEGLAB properly
+if exist('eeglab','file') ~= 2
+    addpath(mainpath);
+end
 
 nochans = {'AccX','AccY','AccZ','GyroX','GyroY','GyroZ', ... % channels to be ignored
     'QuatW','QuatX','QuatY','QuatZ'};

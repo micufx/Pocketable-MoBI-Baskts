@@ -2,7 +2,7 @@ clc, clear, close all;
 
 %% EEG artifact identification
 
-% This code processes EEG data. First, ICA weights of the previous staps
+% This code processes EEG data. First, ICA weights of the previous steps
 % are merged with raw data and the preprocessing is applied to the the
 % segment of data referred to basketball shot period (from -2.5 to 1 sec),
 % only to save artifact information.
@@ -11,10 +11,16 @@ clc, clear, close all;
 
 %% EEG pre-processing
 
-mainpath = 'C:\Users\micua\Desktop\eeglab2023.0\'; % eeglab folder
-path = 'C:\Users\micua\OneDrive - Benemérita Universidad Autónoma de Puebla\NCP_Basketball\MediaPipe\'; % raw data
-outpath = 'C:\\Users\\micua\\OneDrive - Benemérita Universidad Autónoma de Puebla\\Oldenburg_University\\Thesis\\data_hoops\\';
+mainpath = 'L:\Downloads\eeglab2023.0\'; % eeglab folder
+path = 'L:\Downloads\basketball_RP\NCP_Basketball\MediaPipe\';
+outpath = 'L:\Downloads\basketball_RP\Oldenburg_University\Thesis\data_hoops\';
 files = dir( fullfile( path,'\*.xdf')); % listing data sets
+
+% Add EEGLAB properly
+if exist('eeglab','file') ~= 2
+    addpath(mainpath);
+end
+
 vp_path = 'C:\Users\micua\Desktop\eeglab2023.0\plugins\ICLabel\viewprops'; % IC label needs the folder of the plugin
 
 nochans = {'AccX','AccY','AccZ','GyroX','GyroY','GyroZ', ... % channels to be ignored
@@ -155,26 +161,26 @@ end
 
 %% Table info.
 
-% % Assuming T is your table and it has enough rows to accommodate all entries
-% % Also assuming T already exists; if not, you would need to initialize it first.
-% 
-% % Directly assign cell array content to the table
-% T.Bad_components = bad_ICA'; % This assumes 'Bad_components' is the correct column name
-% 
-% % Add a new column for IC labels. Initialize with empty cells
-% T.IC_labels = repmat({''}, height(T), 1);
-% 
-% % Loop through each participant's labels in IC_labels and assign them to the table
-% for i = 2:length(IC_labels)
-%     T.IC_labels{i} = strjoin(IC_labels{i}, ', '); % Join labels with a comma if it's a cell array of strings
-% end
-% 
-% T.Bad_trials = bad_trials';
-% T.Num_bad_trials = total_bad_trials';
-% 
-% 
-% % Save it in .mat file
-% save([outpath, 'Info_EEG.mat'],'T', 'bad_ICA', 'IC_labels', 'bad_trials', 'total_bad_trials');
+% Assuming T is your table and it has enough rows to accommodate all entries
+% Also assuming T already exists; if not, you would need to initialize it first.
+
+% Directly assign cell array content to the table
+T.Bad_components = bad_ICA'; % This assumes 'Bad_components' is the correct column name
+
+% Add a new column for IC labels. Initialize with empty cells
+T.IC_labels = repmat({''}, height(T), 1);
+
+% Loop through each participant's labels in IC_labels and assign them to the table
+for i = 2:length(IC_labels)
+    T.IC_labels{i} = strjoin(IC_labels{i}, ', '); % Join labels with a comma if it's a cell array of strings
+end
+
+T.Bad_trials = bad_trials';
+T.Num_bad_trials = total_bad_trials';
+
+
+% Save it in .mat file
+save([outpath, 'Info_EEG.mat'],'T', 'bad_ICA', 'IC_labels', 'bad_trials', 'total_bad_trials');
 
 
 %%

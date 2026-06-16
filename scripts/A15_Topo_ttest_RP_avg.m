@@ -9,9 +9,9 @@ clc, clear, close all;
 
 %% EEG condition analysis
 
-mainpath = 'C:\Users\micua\Desktop\eeglab2023.0\'; % eeglab folder
-path = 'C:\Users\micua\OneDrive - Benemérita Universidad Autónoma de Puebla\NCP_Basketball\MediaPipe\';
-outpath = 'C:\\Users\\micua\\OneDrive - Benemérita Universidad Autónoma de Puebla\\Oldenburg_University\\Thesis\\data_hoops\\';
+mainpath = 'L:\Downloads\eeglab2023.0\'; % eeglab folder
+path = 'L:\Downloads\basketball_RP\NCP_Basketball\MediaPipe\';
+outpath = 'L:\Downloads\basketball_RP\Oldenburg_University\Thesis\data_hoops\';
 files = dir( fullfile( path,'\*.xdf')); % listing data sets
 
 nochans = {'AccX','AccY','AccZ','GyroX','GyroY','GyroZ', ... % channels to be ignored
@@ -19,6 +19,11 @@ nochans = {'AccX','AccY','AccZ','GyroX','GyroY','GyroZ', ... % channels to be ig
 
 conditions = {'hit', 'miss'};
 num_conditions = 2; % (Conditions: 1=hit 2=miss)
+
+% Add EEGLAB properly
+if exist('eeglab','file') ~= 2
+    addpath(mainpath);
+end
 
 %% Loading data
 
@@ -234,6 +239,127 @@ p_values_matrix_ROI = adjusted_p_values_matrix_ROI;
 
 p_values_matrix (roi_indices, :) = p_values_matrix_ROI;
 z_values_matrix (roi_indices, :) = z_values_matrix_ROI;
+
+
+
+%% Extract and save Cz RP magnitude/statistics for reporting
+% This section summarizes the group-level RP amplitude at Cz for each
+% 100-ms bin. It prints and saves mean amplitude, SE, z, p, FDR-p, and
+% Wilcoxon effect size r = |z|/sqrt(N).
+
+idx_chan_Cz = find(strcmp({EEG.chanlocs.labels}, 'Cz'));
+
+% Output folder
+reportOut = fullfile(outpath, 'group_analysis');
+if ~exist(reportOut, 'dir')
+    mkdir(reportOut);
+end
+
+% Preallocate
+Cz_bin_start_ms = binEdges(1:end-1)';
+Cz_bin_end_ms   = binEdges(2:end)';
+Cz_N            = zeros(nBins,1);
+Cz_mean_uV      = zeros(nBins,1);
+Cz_SD_uV        = zeros(nBins,1);
+Cz_SE_uV        = zeros(nBins,1);
+Cz_median_uV    = zeros(nBins,1);
+Cz_min_uV       = zeros(nBins,1);
+Cz_max_uV       = zeros(nBins,1);
+Cz_z            = zeros(nBins,1);
+Cz_p_raw        = zeros(nBins,1);
+Cz_p_FDR        = zeros(nBins,1);
+Cz_r_abs        = zeros(nBins,1);
+Cz_percent_neg  = zeros(nBins,1);
+
+for b = 1:nBins
+
+    observations = all_means{idx_chan_Cz}(:, b);
+    observations = observations(~isnan(observations));
+
+    Cz_N(b)           = numel(observations);
+    Cz_mean_uV(b)     = mean(observations);
+    Cz_SD_uV(b)       = std(observations);
+    Cz_SE_uV(b)       = std(observations) / sqrt(numel(observations));
+    Cz_median_uV(b)   = median(observations);
+    Cz_min_uV(b)      = min(observations);
+    Cz_max_uV(b)      = max(observations);
+    Cz_percent_neg(b) = 100 * mean(observations < 0);
+
+    % Re-run Wilcoxon signed-rank test to obtain raw p and z
+    [p_raw, ~, stats] = signrank(observations, 0);
+
+    Cz_p_raw(b) = p_raw;
+    Cz_z(b)     = stats.zval;
+
+    % FDR-corrected p-value already stored in p_values_matrix
+    Cz_p_FDR(b) = p_values_matrix(idx_chan_Cz, b);
+
+    % Wilcoxon effect size
+    Cz_r_abs(b) = abs(stats.zval) / sqrt(numel(observations));
+
+end
+
+% Create table
+Cz_RP_BinStats = table( ...
+    Cz_bin_start_ms, ...
+    Cz_bin_end_ms, ...
+    Cz_N, ...
+    Cz_mean_uV, ...
+    Cz_SE_uV, ...
+    Cz_SD_uV, ...
+    Cz_median_uV, ...
+    Cz_min_uV, ...
+    Cz_max_uV, ...
+    Cz_percent_neg, ...
+    Cz_z, ...
+    Cz_p_raw, ...
+    Cz_p_FDR, ...
+    Cz_r_abs);
+
+% Save table
+writetable(Cz_RP_BinStats, fullfile(reportOut, 'Cz_RP_group_bin_statistics.xlsx'));
+writetable(Cz_RP_BinStats, fullfile(reportOut, 'Cz_RP_group_bin_statistics.csv'));
+save(fullfile(reportOut, 'Cz_RP_group_bin_statistics.mat'), 'Cz_RP_BinStats');
+
+
+% Print only significant Cz bins for manuscript reporting
+
+sigCz = Cz_RP_BinStats(Cz_RP_BinStats.Cz_p_FDR < 0.05, :);
+
+disp('==============================================================');
+disp('Significant Cz RP bins after FDR correction');
+disp('==============================================================');
+disp(sigCz);
+
+fprintf('\nManuscript-friendly summary for Cz significant bins:\n');
+
+for i = 1:height(sigCz)
+    fprintf(['%d to %d ms: mean = %.2f ± %.2f µV, ' ...
+             'z = %.2f, raw p = %.4f, FDR p = %.4f, r = %.2f\n'], ...
+        sigCz.Cz_bin_start_ms(i), ...
+        sigCz.Cz_bin_end_ms(i), ...
+        sigCz.Cz_mean_uV(i), ...
+        sigCz.Cz_SE_uV(i), ...
+        sigCz.Cz_z(i), ...
+        sigCz.Cz_p_raw(i), ...
+        sigCz.Cz_p_FDR(i), ...
+        sigCz.Cz_r_abs(i));
+end
+
+fprintf('\nAbstract-friendly range across significant Cz bins:\n');
+fprintf('Mean amplitude range: %.2f to %.2f µV\n', ...
+    min(sigCz.Cz_mean_uV), max(sigCz.Cz_mean_uV));
+fprintf('SE range: %.2f to %.2f µV\n', ...
+    min(sigCz.Cz_SE_uV), max(sigCz.Cz_SE_uV));
+fprintf('z range: %.2f to %.2f\n', ...
+    min(sigCz.Cz_z), max(sigCz.Cz_z));
+fprintf('FDR p range: %.4f to %.4f\n', ...
+    min(sigCz.Cz_p_FDR), max(sigCz.Cz_p_FDR));
+fprintf('r range: %.2f to %.2f\n', ...
+    min(sigCz.Cz_r_abs), max(sigCz.Cz_r_abs));
+fprintf('==============================================================\n');
+
+
 
 
 %% TOPOGRAPHY
