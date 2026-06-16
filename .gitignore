@@ -9,3 +9,6 @@ data/bids/*
 # ignore fieldtrip and eeglab toolbox folder
 fieldtrip*/
 eeglab*/
+
+.venv
+poetry.lock

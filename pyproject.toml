@@ -1,0 +1,23 @@
+[project]
+name = "mobile-basketball-eeg"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "jwelzel",email = "52565341+JuliusWelzel@users.noreply.github.com"}
+]
+package-mode = false
+license = {text = "MIT"}
+readme = "README.md"
+requires-python = ">=3.12,<4.0"
+dependencies = [
+    "mne (>=1.9.0,<2.0.0)",
+    "ipykernel (>=6.29.5,<7.0.0)",
+    "pandas (>=2.3.0,<3.0.0)",
+    "mne-icalabel (>=0.7.0,<0.8.0)",
+    "onnxruntime (>=1.22.0,<2.0.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
