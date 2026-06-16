@@ -44,18 +44,21 @@ A24_Stats_RP
 A25_Data_distribution_RP
 A26_RP_onset_imageplot_participant
 A27_RP_onset_imageplot_grand_avg
-A28_RP_topo_subplot
-A29_Sig_motion
-A30_Basketball_profile
+A28_Topo_ttest_conditions
+A29_Topo_ttest_conditions_avg
+A30_RP_topo_subplot
+A31_Sig_motion
+A32_Basketball_profile
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Optional 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 B01_MP_visualization
 B02_RP_ttest_subplot_3D
-B03_Channel_inspection
-B04_ACC_subplot_rev
-B05_BIDS_converter_eeg_motion
+B03_Conditions_ttest_subplot_3D
+B04_Channel_inspection
+B05_ACC_subplot_rev
+C01_BIDS_converter_eeg_motion
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Functions attached
