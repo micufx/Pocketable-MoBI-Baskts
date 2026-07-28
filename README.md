@@ -4,7 +4,11 @@ This project presents a novel, low-cost, and portable solution for simultaneousl
 
 The results demonstrate the successful identification of the RP in a natural setting, highlighting the potential of this approach for studying brain-behavior relationships in various domains, including sports science, clinical neuroscience, and human-computer interaction. This research contributes to the advancement of mobile brain/body imaging (MoBI) by offering a practical and accessible method for capturing neural and behavioral data in everyday life contexts. By combining mobile EEG with real-time pose detection and readily available smartphones, this research offers a practical solution for studying brain-behavior relationships in naturalistic environments. 
  
-This project involves analyzing motion and EEG data collected during basketball free-throw shooting. The scripts in this repository are designed to process and analyze the data stored in the `data` directory using MATLAB.
+This project involves analyzing motion and EEG data collected during basketball free-throw shooting. The MATLAB scripts in this repository are designed to process and analyze the data available on request from the corresponding author.
+
+A demo can be found at: [🧠🏀](https://www.youtube.com/watch?v=sa7OVjG7leg)
+All information about the set-up is available at: [MoBI set-up](https://juliuswelzel.github.io/eeg_basketball_website/)
+
 
 ## Directory Structure
 
