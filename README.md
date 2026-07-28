@@ -6,8 +6,8 @@ The results demonstrate the successful identification of the RP in a natural set
  
 This project involves analyzing motion and EEG data collected during basketball free-throw shooting. The MATLAB scripts in this repository are designed to process and analyze the data available on request from the corresponding author.
 
-A demo can be found at: [🧠🏀](https://www.youtube.com/watch?v=sa7OVjG7leg)
-All information about the set-up is available at: [MoBI set-up](https://juliuswelzel.github.io/eeg_basketball_website/)
+A demo can be found at: [🧠🏀](https://www.youtube.com/watch?v=sa7OVjG7leg).
+All information about the set-up is available at: [MoBI set-up](https://juliuswelzel.github.io/eeg_basketball_website/).
 
 
 ## Directory Structure
